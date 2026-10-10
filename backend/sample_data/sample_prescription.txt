@@ -1,0 +1,9 @@
+SYNTHETIC DEMONSTRATION DOCUMENT - NOT A REAL PATIENT RECORD
+
+Prescription
+Date: 2026-08-12
+Medicine: Sample medicine A
+Dose: 1 tablet as written by the fictional clinician
+Notes: This content is invented only to demonstrate document extraction.
+
+Do not use this example for medical decisions.
