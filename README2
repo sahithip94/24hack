@@ -1,0 +1,240 @@
+
+
+***#MediVault-Lost in Transit: Fragmented Medical Records and Repeated Care Across Providers***
+
+
+
+&#x09;MediVault is a patient-focused medical-record management prototype that helps users bring their prescriptions, laboratory reports, scanned documents, and other medical files together in one place. It organizes available information into a chronological timeline, extracts text from supported documents, generates AI-assisted summaries, and provides controlled sharing for selected records.
+
+
+
+**##Problem Statement:**
+
+&#x09;Patients with long-term conditions such as diabetes, hypertension, thyroid disorders, and asthma may visit multiple doctors, clinics, diagnostic laboratories, and pharmacies over time. Their medical history can become scattered across paper prescriptions, PDF reports, scanned documents, photographs, and files shared through messaging applications.
+
+When patients change doctors, move to another city, or visit an emergency room, previous records may not be available when needed. Patients may struggle to remember earlier diagnoses, allergies, medicines, and dosages. Clinicians may therefore have to make decisions with incomplete information. This can contribute to repeated diagnostic tests, conflicting treatment information, delays, and gaps in continuity of care.
+
+Manual sharing can also expose sensitive health information. Patients need a convenient way to organize their medical history, understand it, share selected records with the intended recipient, and stop access when it is no longer needed. 
+
+
+
+**##Proposed Solution:**
+
+
+
+MediVault helps patients bring their medical documents together and share selected records through a controlled access workflow. Its intended capabilities include:
+
+* **Medical timeline:** organizes uploaded records by documented event date so users can review the sequence of reports and medical events.
+* **OCR text extraction:** extracts readable text from supported scans and images, reducing the need to manually type document content.
+* **AI report summarization:** produces a shorter, easier-to-read overview of medical-record entries, with references to source records.
+* **Report management:** stores document metadata and links structured records to their original documents.
+* **Guest Access:** enables a patient to share a selected set of records with a recipient without requiring that recipient to create a patient account.
+* **Expiry and revocation:** limits sharing to a specified time window and allows the patient to end access.
+
+MediVault supports record organization and sharing. It does not replace professional medical advice, diagnose conditions, or independently determine treatment.
+
+
+
+**##How Medivault Addresses the Problem:**
+
+|Challenge|How MediVault helps|
+|-|-|
+|Scattered records|Gives users one place to upload and manage prescriptions, lab reports, scans, and other medical documents.|
+|Unreliable recall|Lets users refer to stored records instead of relying only on memory during a consultation.|
+|Difficult-to-follow history|Presents available records chronologically. The timeline depends on the dates and records provided by the user.|
+|Hard-to-read documents|Uses OCR on supported image files and extracts text from text-based PDFs.|
+|Long or complex reports|Provides an AI-assisted summary to make important record details easier to review.|
+|Repeated tests|Makes earlier results easier to find and share. The current backend also flags exact matching laboratory-test titles recorded within few days.|
+|Conflicting treatment information|Helps patients share related prescriptions and history for a clinician to review. Medication reconciliation and drug-interaction checking are not fully implemented in the current backend starter.|
+|Insecure sharing|Uses a share token, restricted record scope, PIN verification, expiry, and revocation rather than relying only on forwarded files.|
+|Broken continuity of care|Helps patients carry relevant records when changing providers, moving locations, or seeking urgent care.|
+
+
+
+**##Key Features and Current Implementation Status:**
+
+* **Medical report upload:** implemented for PDF, TXT, PNG, JPG/JPEG, and WEBP files, with file type and size checks.
+* **Text extraction:** text-based PDF/TXT extraction is supported. Image OCR requires the separate Tesseract application. Scanned-PDF OCR is not built into the current backend starter.
+* **Medical record verification:** the backend presents candidate information for patient review and stores records when verified or entered.
+* **Medical timeline:** implemented with chronological sorting and optional category/date filters.
+* **AI report summary:** uses the Gemini API when configured and the API call succeeds. Otherwise, it returns a labelled local fallback summary. The fallback must not be presented as LLM output.
+* **Possible repeated-test alerts:** basic exact-title matching for laboratory records within 30 days is implemented.
+* Guest Access: Implemented using a sharing link and a separate six-digit PIN. When creating a share, the patient receives the PIN and shares both the link and PIN with the intended recipient. Access is restricted to selected records, with expiry and revocation.
+* Recipient verification: The recipient enters the PIN shared by the patient to access the permitted records. The PIN is provided when the sharing link is created; automatic email/SMS delivery is not implemented.
+* **Medication interaction detection:** not implemented in the current backend starter. It would require structured medication data and a validated drug-interaction source.
+
+Feature claims should be updated only after the actual integrated application has been tested.
+
+
+
+**##How It Works:**
+
+1. The patient registers and logs in.
+2. The patient uploads a prescription, lab report, scan, or other supported document.
+3. The backend extracts text where supported and suggests candidate details.
+4. The patient reviews and verifies the extracted information against the original document.
+5. Verified records are stored and displayed in a chronological timeline.
+6. The patient can generate an AI-assisted summary from trusted records.
+7. The patient selects one or more trusted records to share.
+
+8\. MediVault creates a sharing link with access restricted to the selected records and a specified expiry time.
+
+9\. The patient receives a six-digit PIN when generating the link and shares both the link and PIN with the intended recipient.
+
+10\. The recipient opens the link, enters the PIN, and accesses only the records selected for that sharing session.
+
+11\. The patient can revoke the sharing link; subsequent access attempts through that link are rejected.
+
+
+
+**##Why OCR and AI Summarization Matter:**
+
+
+
+Medical documents can arrive as scanned PDFs, photographs, or other formats that are difficult to read or process consistently. OCR can extract text from supported images and scans, making information easier to review and potentially helping downstream features work with document text.
+
+Medical reports can also contain technical language and many measurements. The AI summarizer is intended to present the main points in a shorter, more readable form. This can help users prepare for a consultation, but it must not be treated as a diagnosis or as a replacement for the full report. Users and healthcare professionals should verify important details against the original document.
+
+Accuracy depends on document quality, language support, extraction quality, and the model or service used. The application should retain source references and clearly distinguish undocumented information from information known to be absent.
+
+
+
+**##Why the Medical Timeline Matters:**
+
+&#x09;When records are stored in different places, it can be difficult to understand what happened and when. The timeline arranges available records chronologically, helping users review previous reports and follow the sequence of documented health events. It can only show information that has been uploaded and correctly dated.
+
+
+
+**##Guest Access And Recipient Verification:**
+
+* MediVault allows patients to share selected medical records with an intended recipient without requiring the recipient to register as a patient.
+* When generating a sharing link, the patient receives a separate six-digit PIN. The patient shares both the link and PIN with the intended recipient. The recipient opens the link and enters the PIN to access the permitted records.
+* Each sharing link is restricted to selected records, has a defined expiry time, and can be revoked by the patient. The backend validates access before allowing the recipient to view shared records.
+* Automatic email/SMS delivery of the PIN is not implemented. The PIN verifies possession of the shared credential; it does not independently confirm the recipient's real-world identity.
+
+
+
+**## AI Summaries:**
+
+MediVault can generate AI-assisted summaries of medical records using the configured AI provider. If the provider is not configured or the request cannot be completed, the application may use its labelled local fallback, if available. Summaries are intended to help users review their records; they are not a diagnosis or a substitute for advice from a qualified healthcare professional.
+
+
+
+**##System Architecture:**
+
+MediVault is designed as a frontend connected to a single FastAPI backend. The backend handles authentication, authorization, document storage, record management, timeline queries, summaries, share links, and audit logging. OCR and LLM functionality are called by backend services.
+
+```mermaid
+flowchart TD
+    A\[Patient] --> B\[Frontend]
+    G\[Guest recipient] --> B
+    B --> C\[FastAPI backend]
+    C --> D\[Authentication and authorization]
+    C --> E\[Document upload and private storage]
+    E --> F\[PDF text extraction / optional image OCR]
+    F --> H\[Patient review and verification]
+    H --> I\[(SQLite database via SQLAlchemy)]
+    C --> J\[Medical records and timeline]
+    J --> I
+    C --> K\[Summary service]
+    K --> L\[Gemini API when configured]
+    K --> M\[Labelled local fallback]
+    K --> I
+    C --> N\[Guest sharing: token, PIN, expiry, revocation]
+    N --> I
+    C --> O\[Audit logging]
+```
+
+
+
+**##Technology Stack:**
+
+* **Language:** Python
+* **Backend framework:** FastAPI
+* **ASGI server:** Uvicorn
+* **Database:** SQLite by default, accessed through SQLAlchemy
+* **Request validation:** FastAPI and Pydantic schemas
+* **Document processing:** `pypdf` for text-based PDFs; `Pillow` and `pytesseract` for image processing/OCR when Tesseract is installed separately
+* **AI summarization:** Gemini API when a valid API key and supported model are configured; local fallback otherwise
+* **Testing:** pytest, FastAPI TestClient, and HTTPX
+* **Configuration:** environment variables loaded from `.env`
+* **Frontend:** maintained separately. Add its confirmed framework and libraries from the frontend `package.json` before final submission.
+
+
+
+**##Installation And Setup Prerequisities:**
+
+* Python 3.10 or later
+* Node.js and npm for the separate frontend
+* Visual Studio Code or another code editor
+* Internet access to install packages
+* Optional: Tesseract OCR installed separately for image OCR
+* Optional: an Gemini API key for LLM summaries
+
+
+
+**##Security, Privacy and Responsible Use:**
+
+* Passwords are hashed; they are not stored as plaintext.
+* Patient-specific routes require authentication and resource ownership checks.
+* Upload types and file sizes are limited; uploaded files are stored separately from public web content.
+* Important actions are recorded in audit logs.
+* Use `.env` for secrets, do not commit `.env`, databases, the `storage/` directory, API keys, or medical records.
+* Check authorization in the backend for every protected request, frontend-only checks are not sufficient.
+* External LLM calls may send the selected trusted record details to the configured provider. Use synthetic data for the hackathon and review the provider's data-handling terms.
+* The current logout endpoint tells the frontend to discard its bearer token, immediate server-side invalidation of already-issued tokens is not implemented in this starter.
+* Guest sharing uses a link and a separate PIN provided to the patient when the share is created. The patient shares both with the intended recipient. Automatic email/SMS delivery of the PIN is not implemented.OCR extraction may be inaccurate. AI summaries must remain source-grounded and must not be used to diagnose or prescribe treatment.
+* Repeated-test alerts are heuristic only. The current code does not automatically detect medication interactions.
+* Use simulated or approved public sample records for demonstrations unless the required approvals and safeguards for real health data are in place.
+
+
+
+**##Libraries and API Disclosure:**
+
+Direct Python dependencies are listed in `requirements.txt`:
+
+* `fastapi` — REST API framework.
+* `uvicorn\\\[standard]` — ASGI server.
+* `sqlalchemy` — database ORM and SQL access.
+* `python-multipart` — file upload support.
+* `pypdf` — PDF text extraction.
+* `Pillow` — image processing.
+* `pytesseract` — Python wrapper for Tesseract OCR; the Tesseract application is installed separately.
+* `gemini` — optional client for Gemini-hosted models.
+* `python-dotenv` — loading local environment settings.
+* `httpx` — HTTP client and testing support.
+* `pytest` — automated testing.
+* `email-validator` — email field validation.
+
+
+
+**##External Services:**
+
+* **Gemini API (optional):** Used for summary generation only when 'GEMINI\\\_API\\\_KEY' is configured and the API call succeeds. The default model is 'gemini-2.5 flash', configurable through `GEMINI-MODEL`. If the request fails or no key is available, the backend returns a local fallback instead.
+* **Tesseract OCR (optional):** Local software used by image OCR; it is not a hosted API.
+* **SQLite:** Local database by default; no hosted database is configured in this starter.
+* **Email/SMS provider:** Not connected. The patient manually shares the generated link and PIN with the intended recipient.
+
+
+
+**##AI-assisted development disclosure:**
+
+ChatGPT and open code were used to assist with project planning, drafting backend code/documentation, and troubleshooting during development. Update this disclosure to reflect all AI tools, open-source libraries, and external APIs actually used by the team, and follow the hackathon's disclosure requirements.
+
+
+
+**##Expected Outcome:**
+
+MediVault aims to provide one place to upload medical documents, review a chronological timeline, extract text from supported scans, view AI-assisted summaries, and share selected records through a controlled link. Recipient verification, server-side permission checks, expiry, and revocation help users control sharing. By making existing records easier to find and review, MediVault may help support continuity of care, but it cannot guarantee that repeated tests or medical errors will be eliminated.
+
+
+
+**## Improvements:**
+
+* Email-based OTP delivery bound to the selected recipient email and sharing session.
+* More reliable OCR and scanned-PDF processing.
+* Structured medication reconciliation and a validated drug-interaction data source.
+* Improved duplicate-test matching that considers test details, dates, and results.
+* Strong server-side session/token revocation and production database migrations.
+* Deployment with appropriate privacy, security, and data-retention controls.
+
